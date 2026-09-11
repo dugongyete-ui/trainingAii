@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.DS_Store
+out
+website/
+docs-minimind/
+qwen2.5-0.5b-instruct/
+dzeck-small-id/
+dzeck-large-id/
+minimind-3/

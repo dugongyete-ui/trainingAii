@@ -1,0 +1,4 @@
+- [MiniMind runtime setup](minimind-runtime.md) — use the project Python interpreter and download a model before running inference.
+- [Dzeck model provenance](dzeck-model-provenance.md) — keep the public Dzeck identity separate from the Qwen foundation until training is exported.
+- [MiniMind training branches](minimind-training-branches.md) — native trainer scripts target the small MiniMind architecture, not the downloaded Qwen 3B foundation.
+- [Dzeck WebUI runtime](dzeck-webui-runtime.md) — Streamlit needs lazy model loading and proxy-safe websocket flags for a responsive Replit preview.

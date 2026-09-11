@@ -1,0 +1,37 @@
+modules = ["nodejs-20", "python-3.11"]
+
+[[ports]]
+localPort = 5000
+externalPort = 5000
+
+[[ports]]
+localPort = 8080
+externalPort = 80
+
+[nix]
+channel = "stable-25_05"
+packages = ["cairo", "cargo", "ffmpeg-full", "freetype", "ghostscript", "gitFull", "glibcLocales", "gobject-introspection", "gtk3", "libiconv", "libjpeg_turbo", "libpng", "libxcrypt", "pkg-config", "python312Packages.torchWithoutCuda", "qhull", "rustc", "tcl", "tk", "which"]
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Dzeck WebUI"
+
+[[workflows.workflow]]
+name = "Dzeck WebUI"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "bash run_web.sh"
+waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"
