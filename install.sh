@@ -5,8 +5,8 @@ set -Eeuo pipefail
 ROOT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 cd "$ROOT_DIR"
 
-MODEL_NAME="Qwen/Qwen2.5-0.5B-Instruct"
-MODEL_DIR="${MODEL_DIR:-$ROOT_DIR/dzeck-small-id}"
+MODEL_NAME="${MODEL_NAME:-Qwen/Qwen2.5-3B-Instruct}"
+MODEL_DIR="${MODEL_DIR:-$ROOT_DIR/dzeck-large-id}"
 PYTHON_BIN="${PYTHON_BIN:-}"
 
 if [[ -z "$PYTHON_BIN" && -x "$ROOT_DIR/.pythonlibs/bin/python3.11" ]]; then
@@ -39,13 +39,13 @@ echo "==> Memasang PyTorch CPU..."
 echo "==> Memasang dependensi proyek..."
 "$PYTHON_BIN" -m pip install --break-system-packages -r requirements.txt
 
-if [[ ! -f "$MODEL_DIR/model.safetensors" ]]; then
-    echo "==> Mengunduh checkpoint multilingual $MODEL_NAME..."
+if [[ ! -f "$MODEL_DIR/model.safetensors" && ! -f "$MODEL_DIR/model.safetensors.index.json" ]]; then
+    echo "==> Mengunduh fondasi model besar $MODEL_NAME..."
     "$PYTHON_BIN" -m modelscope.cli.cli download \
         --model "$MODEL_NAME" \
         --local_dir "$MODEL_DIR"
 else
-    echo "==> Checkpoint Dzeck sudah ada, lewati unduhan model."
+    echo "==> Checkpoint model sudah ada, lewati unduhan."
 fi
 
 echo "==> Memvalidasi instalasi..."
@@ -63,6 +63,11 @@ PY
 
 echo
 echo "Instalasi selesai."
+echo
+echo "Identitas model:"
+echo "  Nama aplikasi/API: Dzeck Large ID"
+echo "  Fondasi default:  $MODEL_NAME"
+echo "  Catatan: folder ini menjadi model Dzeck milik Anda setelah hasil training diekspor."
 echo
 echo "Untuk menjalankan AI secara interaktif:"
 echo "  $PYTHON_BIN eval_llm.py --device cpu"

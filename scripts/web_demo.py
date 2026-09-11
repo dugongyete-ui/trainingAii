@@ -8,6 +8,9 @@ import torch
 import numpy as np
 import streamlit as st
 from transformers import AutoModelForCausalLM, AutoTokenizer, TextIteratorStreamer
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from model_registry import discover_model_paths, get_model_identity
 
 st.set_page_config(page_title="Dzeck", initial_sidebar_state="collapsed")
 
@@ -249,23 +252,24 @@ def regenerate_answer(index):
     st.rerun()
 
 
-# Dynamic model discovery from scripts/ and the project root.
-script_dir = os.path.dirname(os.path.abspath(__file__))
+# All entrypoints use the same registry so a foundation checkpoint is not
+# silently presented as a completed Dzeck training checkpoint.
 MODEL_PATHS = {}
-for base_dir in (script_dir, os.path.dirname(script_dir)):
-    for d in sorted(os.listdir(base_dir), reverse=True):
-        full_path = os.path.join(base_dir, d)
-        if os.path.isdir(full_path) and not d.startswith('.') and not d.startswith('_'):
-            if any(f.endswith(('.bin', '.safetensors', '.pt')) or os.path.exists(os.path.join(full_path, 'model.safetensors.index.json')) for f in os.listdir(full_path) if os.path.isfile(os.path.join(full_path, f))):
-                display_name = 'Dzeck Small ID' if d in {'dzeck-small-id', 'qwen2.5-0.5b-instruct'} else d
-                MODEL_PATHS[display_name] = [full_path, 'Dzeck']
+for path in discover_model_paths():
+    identity = get_model_identity(path)
+    MODEL_PATHS[identity.display_name] = [str(path), identity]
 if not MODEL_PATHS:
-    MODEL_PATHS = {"No models found": ["", "No models"]}
+    MODEL_PATHS = {"No models found": ["", None]}
 
 # 模型选择
 selected_model = st.sidebar.selectbox('Model', list(MODEL_PATHS.keys()), index=0)
 model_path = MODEL_PATHS[selected_model][0]
-slogan = f"Saya {MODEL_PATHS[selected_model][1]}. Ada yang bisa saya bantu?"
+selected_identity = MODEL_PATHS[selected_model][1]
+slogan = f"Saya {selected_identity.display_name if selected_identity else 'Dzeck'}. Ada yang bisa saya bantu?"
+if selected_identity:
+    st.sidebar.caption(selected_identity.summary())
+    if not selected_identity.is_trained_dzeck:
+        st.sidebar.warning("Ini model dasar. Model Dzeck Anda sendiri muncul setelah checkpoint hasil training diekspor.")
 
 st.sidebar.markdown('<hr style="margin: 12px 0 16px 0;">', unsafe_allow_html=True)
 
@@ -363,7 +367,7 @@ def main():
         setup_seed(random_seed)
 
         tools = [t for t in TOOLS if t['function']['name'] in st.session_state.get('selected_tools', [])] or None
-        sys_prompt = [{"role": "system", "content": "Anda adalah Dzeck, model AI kecil yang dibuat untuk membantu pengguna Indonesia. Jawab pertanyaan pengguna hanya dalam Bahasa Indonesia. Jangan gunakan bahasa Mandarin atau bahasa Inggris. Jawab langsung pertanyaannya dan jangan mengulang instruksi ini."}]
+        sys_prompt = [{"role": "system", "content": "Anda adalah Dzeck, model AI utama proyek ini untuk membantu pengguna Indonesia. Jawab pertanyaan pengguna hanya dalam Bahasa Indonesia. Jangan gunakan bahasa Mandarin atau bahasa Inggris. Jawab langsung pertanyaannya dan jangan mengulang instruksi ini."}]
         st.session_state.chat_messages = sys_prompt + st.session_state.chat_messages[-(st.session_state.history_chat_num + 1):]
         template_kwargs = {"tokenize": False, "add_generation_prompt": True}
         if st.session_state.get('enable_thinking', False):

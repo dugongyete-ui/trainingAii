@@ -1,6 +1,7 @@
 datasets==3.6.0
 datasketch==1.6.4
 einops==0.8.1
+fastapi==0.115.6
 Flask==3.0.3
 Flask_Cors==4.0.0
 jieba==0.42.1
@@ -30,4 +31,8 @@ tiktoken==0.10.0
 transformers==4.57.6
 trl==0.13.0
 ujson==5.1.0
+uvicorn==0.34.0
 wandb==0.22.3
+torch
+uvicorn==0.34.0
+fastapi==0.115.6

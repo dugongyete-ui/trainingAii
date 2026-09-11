@@ -43,13 +43,26 @@
 
 ---
 
-## Dzeck — AI kecil untuk Bahasa Indonesia
+## Dzeck Large ID — AI utama untuk Bahasa Indonesia
 
-Di workspace ini, model yang dipakai untuk inference diberi nama **Dzeck Small ID**.
-Model ini berukuran sekitar 0,5B parameter dan diarahkan untuk menjawab dalam
-Bahasa Indonesia. Checkpoint dasarnya adalah model multilingual Qwen, sehingga
-label “ID” menunjukkan target bahasa proyek, bukan klaim bahwa checkpoint dasar
-tersebut dilatih sepenuhnya di Indonesia.
+Nama model/API utama di proyek ini adalah **Dzeck Large ID**. Instalasi baru
+menggunakan fondasi **Qwen2.5-3B-Instruct**, sehingga kapasitas default tidak lagi
+berada di kelas 0,5B.
+
+Penting untuk membedakan tiga hal:
+
+1. **Dzeck Large ID** adalah identitas model di CLI, WebUI, dan OpenAI-compatible API.
+2. **Qwen2.5-3B-Instruct** adalah fondasi pihak ketiga yang diunduh untuk memulai
+   inference. Nama Qwen muncul karena model besar itu belum menjadi checkpoint
+   hasil training Dzeck.
+3. Model yang benar-benar Anda latih sendiri adalah checkpoint dari pretraining,
+   SFT, LoRA, atau RL yang sudah diekspor. Setelah itu checkpoint tersebut dapat
+   diberi identitas Dzeck melalui manifest model dan akan ditampilkan sebagai
+   **checkpoint hasil training Dzeck**, bukan sebagai Qwen.
+
+Folder `dzeck-small-id` yang sudah ada di clone lama tetap didukung sebagai
+fallback, tetapi isinya adalah Qwen2.5-0.5B-Instruct. Folder itu sengaja tidak
+lagi dipilih sebagai default.
 
 Urutan kerja setelah test inference:
 
@@ -57,7 +70,7 @@ Urutan kerja setelah test inference:
 2. Jalankan pretraining atau langsung SFT jika sudah memakai checkpoint dasar.
 3. Uji checkpoint hasil training dengan `eval_llm.py`.
 4. Bandingkan jawaban sebelum dan sesudah training pada prompt yang sama.
-5. Jika hasil stabil, lanjutkan LoRA/DPO dan baru publikasikan checkpoint Dzeck.
+5. Jika hasil stabil, ekspor checkpoint dan publikasikan sebagai model Dzeck.
 
 <div align="center">
 

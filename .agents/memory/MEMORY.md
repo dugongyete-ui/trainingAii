@@ -1,1 +1,2 @@
 - [MiniMind runtime setup](minimind-runtime.md) — use the project Python interpreter and download a model before running inference.
+- [Dzeck model provenance](dzeck-model-provenance.md) — keep the public Dzeck identity separate from the Qwen foundation until training is exported.

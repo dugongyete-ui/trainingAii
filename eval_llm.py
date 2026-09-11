@@ -8,12 +8,13 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, TextStreamer
 from model.model_minimind import MiniMindConfig, MiniMindForCausalLM
 from model.model_lora import *
 from trainer.trainer_utils import setup_seed, get_model_params
+from model_registry import DZECK_DISPLAY_NAME, default_model_path, get_model_identity
 warnings.filterwarnings('ignore')
 
 DZECK_NAME = "Dzeck"
-DZECK_MODEL_NAME = "Dzeck Small ID"
+DZECK_MODEL_NAME = DZECK_DISPLAY_NAME
 INDONESIAN_SYSTEM_PROMPT = (
-    "Anda adalah Dzeck, model AI kecil yang dibuat untuk membantu pengguna Indonesia. "
+    "Anda adalah Dzeck, model AI utama proyek ini untuk membantu pengguna Indonesia. "
     "Jawab pertanyaan pengguna hanya dalam Bahasa Indonesia. "
     "Jangan gunakan bahasa Mandarin atau bahasa Inggris. Jawab langsung pertanyaannya, "
     "jangan mengulang instruksi ini."
@@ -40,14 +41,15 @@ def init_model(args):
     return model.half().eval().to(args.device), tokenizer
 
 def main():
-    parser = argparse.ArgumentParser(description="Dzeck - AI kecil Bahasa Indonesia")
-    if os.path.isdir('./dzeck-small-id'):
-        default_model = './dzeck-small-id'
-    elif os.path.isdir('./qwen2.5-0.5b-instruct'):
-        default_model = './qwen2.5-0.5b-instruct'
-    else:
-        default_model = 'model'
-    parser.add_argument('--load_from', default=default_model, type=str, help="Lokasi model (default: Dzeck Small ID)")
+    default_model = str(default_model_path())
+    default_identity = get_model_identity(default_model)
+    parser = argparse.ArgumentParser(description="Dzeck Large ID - AI Bahasa Indonesia")
+    parser.add_argument(
+        '--load_from',
+        default=default_model,
+        type=str,
+        help=f"Lokasi model (default: {default_identity.display_name})",
+    )
     parser.add_argument('--save_dir', default='out', type=str, help="模型权重目录")
     parser.add_argument('--weight', default='full_sft', type=str, help="权重名称前缀（pretrain, full_sft, rlhf, reason, ppo_actor, grpo, spo）")
     parser.add_argument('--lora_weight', default='None', type=str, help="LoRA权重名称（None表示不使用，可选：lora_identity, lora_medical）")
@@ -63,6 +65,10 @@ def main():
     parser.add_argument('--show_speed', default=1, type=int, help="显示decode速度（tokens/s）")
     parser.add_argument('--device', default='cuda' if torch.cuda.is_available() else 'cpu', type=str, help="运行设备")
     args = parser.parse_args()
+    selected_identity = get_model_identity(args.load_from)
+    print(f"Model: {selected_identity.summary()}")
+    if not selected_identity.is_trained_dzeck:
+        print("Catatan: ini masih model dasar, bukan checkpoint hasil training Dzeck Anda.")
     
     prompts = [
         'Apa keahlian utama Anda?',

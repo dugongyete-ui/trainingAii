@@ -13,6 +13,20 @@ from model.model_lora import apply_lora, merge_lora
 
 warnings.filterwarnings('ignore', category=UserWarning)
 
+
+def write_dzeck_manifest(transformers_path, parameter_count):
+    """Mark an exported training checkpoint as a Dzeck-owned model."""
+    manifest_path = os.path.join(transformers_path, "dzeck-model.json")
+    with open(manifest_path, "w", encoding="utf-8") as handle:
+        json.dump({
+            "model_id": "dzeck-large-id",
+            "display_name": "Dzeck Large ID",
+            "status": "trained",
+            "training_stage": "exported",
+            "parameter_count": int(parameter_count),
+        }, handle, indent=2, ensure_ascii=False)
+
+
 def convert_torch2transformers_minimind(torch_path, transformers_path, dtype=torch.float16):
     MiniMindConfig.register_for_auto_class()
     MiniMindForCausalLM.register_for_auto_class("AutoModelForCausalLM")
@@ -26,6 +40,7 @@ def convert_torch2transformers_minimind(torch_path, transformers_path, dtype=tor
     lm_model.save_pretrained(transformers_path, safe_serialization=False)
     tokenizer = AutoTokenizer.from_pretrained('../model/')
     tokenizer.save_pretrained(transformers_path)
+    write_dzeck_manifest(transformers_path, model_params)
     # ======= transformers-5.0的兼容低版本写法 =======
     if int(transformers.__version__.split('.')[0]) >= 5:
         tokenizer_config_path, config_path = os.path.join(transformers_path, "tokenizer_config.json"), os.path.join(transformers_path, "config.json")
@@ -85,6 +100,7 @@ def convert_torch2transformers(torch_path, transformers_path, dtype=torch.float1
     print(f'模型参数: {model_params / 1e6} 百万 = {model_params / 1e9} B (Billion)')
     tokenizer = AutoTokenizer.from_pretrained('../model/')
     tokenizer.save_pretrained(transformers_path)
+    write_dzeck_manifest(transformers_path, model_params)
 
     # ======= transformers-5.0的兼容低版本写法 =======
     if int(transformers.__version__.split('.')[0]) >= 5:

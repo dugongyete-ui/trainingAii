@@ -19,17 +19,19 @@ from pydantic import BaseModel, Field
 from transformers import AutoTokenizer, AutoModelForCausalLM, TextStreamer
 from model.model_minimind import MiniMindConfig, MiniMindForCausalLM
 from model.model_lora import apply_lora, load_lora
+from model_registry import DZECK_DISPLAY_NAME, DZECK_MODEL_ID, default_model_path, get_model_identity
 
 warnings.filterwarnings('ignore')
 
 INDONESIAN_SYSTEM_PROMPT = (
-    "Anda adalah Dzeck, model AI kecil yang dibuat untuk membantu pengguna Indonesia. "
+    "Anda adalah Dzeck, model AI utama proyek ini untuk membantu pengguna Indonesia. "
     "Jawab pertanyaan pengguna hanya dalam Bahasa Indonesia. "
     "Jangan gunakan bahasa Mandarin atau bahasa Inggris. Jawab langsung pertanyaannya, "
     "jangan mengulang instruksi ini."
 )
 
 app = FastAPI()
+model_identity = None
 
 
 def init_model(args):
@@ -239,7 +241,7 @@ async def chat_completions(request: ChatRequest):
                 "id": f"chatcmpl-{int(time.time())}",
                 "object": "chat.completion",
                 "created": int(time.time()),
-                "model": "dzeck-small-id",
+                "model": model_identity.model_id,
                 "choices": [
                     {
                         "index": 0,
@@ -252,9 +254,26 @@ async def chat_completions(request: ChatRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@app.get("/v1/models")
+async def list_models():
+    """Expose the same stable Dzeck model ID used by chat completions."""
+    return {
+        "object": "list",
+        "data": [{
+            "id": model_identity.model_id,
+            "object": "model",
+            "owned_by": "dzeck",
+            "root": model_identity.display_name,
+            "parameter_summary": model_identity.parameter_label,
+            "source": model_identity.source_label,
+            "status": model_identity.status,
+        }],
+    }
+
+
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Server API Dzeck - AI kecil Bahasa Indonesia")
-    parser.add_argument('--load_from', default='../dzeck-small-id', type=str, help="Lokasi model Dzeck Small ID")
+    parser = argparse.ArgumentParser(description="Server API Dzeck Large ID - Bahasa Indonesia")
+    parser.add_argument('--load_from', default=str(default_model_path()), type=str, help="Lokasi model utama Dzeck")
     parser.add_argument('--save_dir', default='out', type=str, help="模型权重目录")
     parser.add_argument('--weight', default='full_sft', type=str, help="权重名称前缀（pretrain, full_sft, dpo, reason, ppo_actor, grpo, spo）")
     parser.add_argument('--lora_weight', default='None', type=str, help="LoRA权重名称（None表示不使用，可选：lora_identity, lora_medical）")
@@ -266,5 +285,9 @@ if __name__ == "__main__":
     parser.add_argument('--device', default='cuda' if torch.cuda.is_available() else 'cpu', type=str, help="运行设备")
     args = parser.parse_args()
     device = args.device
+    model_identity = get_model_identity(args.load_from)
+    print(f"Model: {model_identity.summary()}")
+    if not model_identity.is_trained_dzeck:
+        print("Catatan: model yang berjalan masih checkpoint dasar; training Dzeck belum selesai.")
     model, tokenizer = init_model(args)
     uvicorn.run(app, host="0.0.0.0", port=8998)
