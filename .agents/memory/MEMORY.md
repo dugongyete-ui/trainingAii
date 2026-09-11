@@ -1,0 +1,1 @@
+- [MiniMind runtime setup](minimind-runtime.md) — use the project Python interpreter and download a model before running inference.
