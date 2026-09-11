@@ -23,7 +23,8 @@ from model.model_lora import apply_lora, load_lora
 warnings.filterwarnings('ignore')
 
 INDONESIAN_SYSTEM_PROMPT = (
-    "Anda adalah asisten AI. Jawab pertanyaan pengguna hanya dalam Bahasa Indonesia. "
+    "Anda adalah Dzeck, model AI kecil yang dibuat untuk membantu pengguna Indonesia. "
+    "Jawab pertanyaan pengguna hanya dalam Bahasa Indonesia. "
     "Jangan gunakan bahasa Mandarin atau bahasa Inggris. Jawab langsung pertanyaannya, "
     "jangan mengulang instruksi ini."
 )
@@ -49,7 +50,7 @@ def init_model(args):
             load_lora(model, f'../{args.save_dir}/lora/{args.lora_weight}_{args.hidden_size}.pth')
     else:
         model = AutoModelForCausalLM.from_pretrained(args.load_from, trust_remote_code=True)
-    print(f'MiniMind模型参数量: {sum(p.numel() for p in model.parameters()) / 1e6:.2f} M(illion)')
+    print(f'Dzeck model parameters: {sum(p.numel() for p in model.parameters()) / 1e6:.2f}M')
     return model.half().eval().to(device), tokenizer
 
 
@@ -238,7 +239,7 @@ async def chat_completions(request: ChatRequest):
                 "id": f"chatcmpl-{int(time.time())}",
                 "object": "chat.completion",
                 "created": int(time.time()),
-                "model": "minimind",
+                "model": "dzeck-small-id",
                 "choices": [
                     {
                         "index": 0,
@@ -252,8 +253,8 @@ async def chat_completions(request: ChatRequest):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Server for MiniMind")
-    parser.add_argument('--load_from', default='../qwen2.5-0.5b-instruct', type=str, help="Path model (multilingual Qwen checkpoint by default)")
+    parser = argparse.ArgumentParser(description="Server API Dzeck - AI kecil Bahasa Indonesia")
+    parser.add_argument('--load_from', default='../dzeck-small-id', type=str, help="Lokasi model Dzeck Small ID")
     parser.add_argument('--save_dir', default='out', type=str, help="模型权重目录")
     parser.add_argument('--weight', default='full_sft', type=str, help="权重名称前缀（pretrain, full_sft, dpo, reason, ppo_actor, grpo, spo）")
     parser.add_argument('--lora_weight', default='None', type=str, help="LoRA权重名称（None表示不使用，可选：lora_identity, lora_medical）")

@@ -6,7 +6,7 @@ ROOT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 cd "$ROOT_DIR"
 
 MODEL_NAME="Qwen/Qwen2.5-0.5B-Instruct"
-MODEL_DIR="${MODEL_DIR:-$ROOT_DIR/qwen2.5-0.5b-instruct}"
+MODEL_DIR="${MODEL_DIR:-$ROOT_DIR/dzeck-small-id}"
 PYTHON_BIN="${PYTHON_BIN:-}"
 
 if [[ -z "$PYTHON_BIN" && -x "$ROOT_DIR/.pythonlibs/bin/python3.11" ]]; then
@@ -45,7 +45,7 @@ if [[ ! -f "$MODEL_DIR/model.safetensors" ]]; then
         --model "$MODEL_NAME" \
         --local_dir "$MODEL_DIR"
 else
-    echo "==> Checkpoint sudah ada, lewati unduhan model."
+    echo "==> Checkpoint Dzeck sudah ada, lewati unduhan model."
 fi
 
 echo "==> Memvalidasi instalasi..."

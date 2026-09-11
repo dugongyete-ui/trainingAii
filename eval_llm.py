@@ -10,8 +10,11 @@ from model.model_lora import *
 from trainer.trainer_utils import setup_seed, get_model_params
 warnings.filterwarnings('ignore')
 
+DZECK_NAME = "Dzeck"
+DZECK_MODEL_NAME = "Dzeck Small ID"
 INDONESIAN_SYSTEM_PROMPT = (
-    "Anda adalah asisten AI. Jawab pertanyaan pengguna hanya dalam Bahasa Indonesia. "
+    "Anda adalah Dzeck, model AI kecil yang dibuat untuk membantu pengguna Indonesia. "
+    "Jawab pertanyaan pengguna hanya dalam Bahasa Indonesia. "
     "Jangan gunakan bahasa Mandarin atau bahasa Inggris. Jawab langsung pertanyaannya, "
     "jangan mengulang instruksi ini."
 )
@@ -37,9 +40,14 @@ def init_model(args):
     return model.half().eval().to(args.device), tokenizer
 
 def main():
-    parser = argparse.ArgumentParser(description="MiniMind模型推理与对话")
-    default_model = './qwen2.5-0.5b-instruct' if os.path.isdir('./qwen2.5-0.5b-instruct') else 'model'
-    parser.add_argument('--load_from', default=default_model, type=str, help="Path model (default: multilingual Qwen checkpoint when downloaded)")
+    parser = argparse.ArgumentParser(description="Dzeck - AI kecil Bahasa Indonesia")
+    if os.path.isdir('./dzeck-small-id'):
+        default_model = './dzeck-small-id'
+    elif os.path.isdir('./qwen2.5-0.5b-instruct'):
+        default_model = './qwen2.5-0.5b-instruct'
+    else:
+        default_model = 'model'
+    parser.add_argument('--load_from', default=default_model, type=str, help="Lokasi model (default: Dzeck Small ID)")
     parser.add_argument('--save_dir', default='out', type=str, help="模型权重目录")
     parser.add_argument('--weight', default='full_sft', type=str, help="权重名称前缀（pretrain, full_sft, rlhf, reason, ppo_actor, grpo, spo）")
     parser.add_argument('--lora_weight', default='None', type=str, help="LoRA权重名称（None表示不使用，可选：lora_identity, lora_medical）")
@@ -57,14 +65,14 @@ def main():
     args = parser.parse_args()
     
     prompts = [
-        '你有什么特长？',
-        '为什么天空是蓝色的',
-        '请用Python写一个计算斐波那契数列的函数',
-        '解释一下"光合作用"的基本过程',
-        '如果明天下雨，我应该如何出门',
-        '比较一下猫和狗作为宠物的优缺点',
-        '解释什么是机器学习',
-        '推荐一些中国的美食'
+        'Apa keahlian utama Anda?',
+        'Mengapa langit berwarna biru?',
+        'Tuliskan fungsi Python untuk menghitung deret Fibonacci.',
+        'Jelaskan proses dasar fotosintesis.',
+        'Jika besok hujan, apa yang sebaiknya saya siapkan?',
+        'Bandingkan kelebihan dan kekurangan kucing dan anjing sebagai hewan peliharaan.',
+        'Jelaskan apa itu pembelajaran mesin.',
+        'Rekomendasikan beberapa makanan khas Indonesia.',
     ]
     
     conversation = []

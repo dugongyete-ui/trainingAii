@@ -76,7 +76,7 @@ def train_epoch(epoch, loader, iters, lora_params, start_step=0, wandb=None):
         optimizer.zero_grad(set_to_none=True)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="MiniMind LoRA Fine-tuning")
+    parser = argparse.ArgumentParser(description="Dzeck LoRA Fine-tuning")
     parser.add_argument("--save_dir", type=str, default="../out", help="模型保存目录")
     parser.add_argument("--lora_name", type=str, default="lora_medical", help="LoRA权重名称(如lora_identity/lora_medical等)")
     parser.add_argument("--epochs", type=int, default=10, help="训练轮数")
@@ -97,7 +97,7 @@ if __name__ == "__main__":
     parser.add_argument('--from_weight', default='full_sft', type=str, help="基于哪个权重训练，默认full_sft")
     parser.add_argument('--from_resume', default=0, type=int, choices=[0, 1], help="是否自动检测&续训（0=否，1=是）")
     parser.add_argument("--use_wandb", action="store_true", help="是否使用wandb")
-    parser.add_argument("--wandb_project", type=str, default="MiniMind-LoRA", help="wandb项目名")
+    parser.add_argument("--wandb_project", type=str, default="Dzeck-LoRA", help="Nama proyek pelacakan training")
     parser.add_argument("--use_compile", default=0, type=int, choices=[0, 1], help="是否使用torch.compile加速（0=否，1=是）")
     args = parser.parse_args()
 
@@ -122,7 +122,7 @@ if __name__ == "__main__":
         import swanlab as wandb
         wandb_id = ckp_data.get('wandb_id') if ckp_data else None
         resume = 'must' if wandb_id else None
-        wandb_run_name = f"MiniMind-LoRA-{args.lora_name}-Epoch-{args.epochs}-BatchSize-{args.batch_size}-LR-{args.learning_rate}"
+        wandb_run_name = f"Dzeck-LoRA-{args.lora_name}-Epoch-{args.epochs}-BatchSize-{args.batch_size}-LR-{args.learning_rate}"
         wandb.init(project=args.wandb_project, name=wandb_run_name, id=wandb_id, resume=resume)
     
     # ========== 5. 定义模型、应用LoRA、冻结非LoRA参数 ==========

@@ -9,7 +9,7 @@ import numpy as np
 import streamlit as st
 from transformers import AutoModelForCausalLM, AutoTokenizer, TextIteratorStreamer
 
-st.set_page_config(page_title="MiniMind", initial_sidebar_state="collapsed")
+st.set_page_config(page_title="Dzeck", initial_sidebar_state="collapsed")
 
 st.markdown("""
     <style>
@@ -79,7 +79,7 @@ LANG_TEXTS = {
         'thinking': 'Mode berpikir',
         'tools': 'Alat bantu',
         'language': 'Bahasa',
-        'send': 'Kirim pesan ke MiniMind',
+        'send': 'Kirim pesan ke Dzeck',
         'disclaimer': 'Jawaban AI mungkin keliru, harap periksa kembali',
         'think_tip': 'Mode berpikir adaptif dapat kurang stabil pada percakapan panjang atau pemanggilan alat',
         'tool_select': 'Pilih alat bantu (maksimal 4)',
@@ -92,7 +92,7 @@ LANG_TEXTS = {
         'thinking': '思考',
         'tools': '工具',
         'language': '语言',
-        'send': '给 MiniMind 发送消息',
+        'send': '给 Dzeck 发送消息',
         'disclaimer': 'AI 生成内容可能存在错误，请仔细核实',
         'think_tip': '自适应思考，目前多轮对话或Tool Call共存时思考不稳定',
         'tool_select': '工具选择（最多4个）',
@@ -105,7 +105,7 @@ LANG_TEXTS = {
         'thinking': 'Thinking',
         'tools': 'Tools',
         'language': 'Language',
-        'send': 'Send a message to MiniMind',
+        'send': 'Send a message to Dzeck',
         'disclaimer': 'AI-generated content may be inaccurate, please verify',
         'think_tip': 'Adaptive thinking; may be unstable with multi-turn or Tool Call',
         'tool_select': 'Tool Selection (max 4)',
@@ -257,7 +257,8 @@ for base_dir in (script_dir, os.path.dirname(script_dir)):
         full_path = os.path.join(base_dir, d)
         if os.path.isdir(full_path) and not d.startswith('.') and not d.startswith('_'):
             if any(f.endswith(('.bin', '.safetensors', '.pt')) or os.path.exists(os.path.join(full_path, 'model.safetensors.index.json')) for f in os.listdir(full_path) if os.path.isfile(os.path.join(full_path, f))):
-                MODEL_PATHS[d] = [full_path, d]
+                display_name = 'Dzeck Small ID' if d in {'dzeck-small-id', 'qwen2.5-0.5b-instruct'} else d
+                MODEL_PATHS[display_name] = [full_path, 'Dzeck']
 if not MODEL_PATHS:
     MODEL_PATHS = {"No models found": ["", "No models"]}
 
@@ -362,7 +363,7 @@ def main():
         setup_seed(random_seed)
 
         tools = [t for t in TOOLS if t['function']['name'] in st.session_state.get('selected_tools', [])] or None
-        sys_prompt = [{"role": "system", "content": "Anda adalah asisten AI. Jawab pertanyaan pengguna hanya dalam Bahasa Indonesia. Jangan gunakan bahasa Mandarin atau bahasa Inggris. Jawab langsung pertanyaannya dan jangan mengulang instruksi ini."}]
+        sys_prompt = [{"role": "system", "content": "Anda adalah Dzeck, model AI kecil yang dibuat untuk membantu pengguna Indonesia. Jawab pertanyaan pengguna hanya dalam Bahasa Indonesia. Jangan gunakan bahasa Mandarin atau bahasa Inggris. Jawab langsung pertanyaannya dan jangan mengulang instruksi ini."}]
         st.session_state.chat_messages = sys_prompt + st.session_state.chat_messages[-(st.session_state.history_chat_num + 1):]
         template_kwargs = {"tokenize": False, "add_generation_prompt": True}
         if st.session_state.get('enable_thinking', False):

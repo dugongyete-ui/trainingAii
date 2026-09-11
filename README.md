@@ -43,6 +43,22 @@
 
 ---
 
+## Dzeck — AI kecil untuk Bahasa Indonesia
+
+Di workspace ini, model yang dipakai untuk inference diberi nama **Dzeck Small ID**.
+Model ini berukuran sekitar 0,5B parameter dan diarahkan untuk menjawab dalam
+Bahasa Indonesia. Checkpoint dasarnya adalah model multilingual Qwen, sehingga
+label “ID” menunjukkan target bahasa proyek, bukan klaim bahwa checkpoint dasar
+tersebut dilatih sepenuhnya di Indonesia.
+
+Urutan kerja setelah test inference:
+
+1. Siapkan dataset percakapan Indonesia dalam format JSONL.
+2. Jalankan pretraining atau langsung SFT jika sudah memakai checkpoint dasar.
+3. Uji checkpoint hasil training dengan `eval_llm.py`.
+4. Bandingkan jawaban sebelum dan sesudah training pada prompt yang sama.
+5. Jika hasil stabil, lanjutkan LoRA/DPO dan baru publikasikan checkpoint Dzeck.
+
 <div align="center">
 
 ![minimind-3](./images/minimind-3.gif)

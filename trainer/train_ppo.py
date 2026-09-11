@@ -308,7 +308,7 @@ def ppo_train_epoch(epoch, loader, iters, rollout_engine, ref_model, actor_sched
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="MiniMind PPO (Proximal Policy Optimization)")
+    parser = argparse.ArgumentParser(description="Dzeck PPO (Proximal Policy Optimization)")
     parser.add_argument("--save_dir", type=str, default="../out", help="模型保存目录")
     parser.add_argument('--save_weight', default='ppo_actor', type=str, help="保存权重的前缀名")
     parser.add_argument("--epochs", type=int, default=1, help="训练轮数")

@@ -200,7 +200,7 @@ def run_case(prompt, tools, args, model=None, tokenizer=None, client=None):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="MiniMind ToolCall评测")
+    parser = argparse.ArgumentParser(description="Dzeck Tool Call Evaluation")
     parser.add_argument('--backend', default='local', choices=['local', 'api'], type=str, help="推理后端（local=本地模型，api=OpenAI兼容接口）")
     parser.add_argument('--load_from', default='../model', type=str, help="模型加载路径（model=原生torch权重，其他路径=transformers格式）")
     parser.add_argument('--save_dir', default='../out', type=str, help="模型权重目录")
@@ -215,7 +215,7 @@ def main():
     parser.add_argument('--device', default='cuda' if torch.cuda.is_available() else 'cpu', type=str, help="运行设备")
     parser.add_argument('--api_base_url', default="http://localhost:11434/v1", type=str, help="OpenAI兼容接口的base_url")
     parser.add_argument('--api_key', default='sk-123', type=str, help="OpenAI兼容接口的api_key")
-    parser.add_argument('--api_model', default='jingyaogong/minimind-3:latest', type=str, help="API请求时使用的模型名称")
+    parser.add_argument('--api_model', default='dzeck-small-id', type=str, help="Nama model yang dipakai API")
     parser.add_argument('--stream', default=1, type=int, help="API模式下是否流式输出（0=否，1=是）")
     args = parser.parse_args()
 
